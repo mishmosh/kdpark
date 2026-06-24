@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Friends of Karen Donnelly Park</title>
+  <meta name="description" content="Karen Donnelly Park is a small but special green space in the heart of Pennsport, South Philadelphia.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+      font-size: 18px;
+      line-height: 1.7;
+      color: #2c2c2c;
+      background: #f5f4f0;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────── */
+    header {
+      background: #3d6b4f;
+      color: #fff;
+      padding: 2.5rem 1.5rem 2rem;
+      text-align: center;
+    }
+
+    header .eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin: 0 0 0.6rem;
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.5rem, 5vw, 2.3rem);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    /* ── MAIN CONTENT ───────────────────────────────────── */
+    main {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3rem;
+      background: #ffffff;
+      min-height: 80vh;
+    }
+
+    /* ── OVERRIDE GOOGLE DOC FIXED-WIDTH STYLES ─────────── */
+    main * {
+      max-width: 100% !important;
+    }
+
+    /* Remove Google's fixed pixel widths on containers */
+    main div, main p, main span, main section {
+      width: auto !important;
+    }
+
+    main img {
+      display: block;
+      width: 100% !important;
+      height: auto !important;
+      border-radius: 4px;
+      margin: 1.25em 0;
+    }
+
+    /* ── TYPOGRAPHY ─────────────────────────────────────── */
+    main p {
+      margin: 0 0 1em;
+      font-size: 1rem;
+      line-height: 1.75;
+    }
+
+    main h1, main h2, main h3, main h4, main h5 {
+      font-family: 'Playfair Display', Georgia, serif;
+      color: #1f3d2b;
+      margin: 1.75em 0 0.5em;
+      line-height: 1.25;
+    }
+
+    main h1 { font-size: clamp(1.4rem, 4vw, 1.8rem); }
+    main h2 { font-size: clamp(1.2rem, 3.5vw, 1.5rem); }
+    main h3 { font-size: 1.1rem; }
+
+    main a {
+      color: #3d6b4f;
+      text-underline-offset: 3px;
+    }
+
+    main ul, main ol {
+      padding-left: 1.5em;
+      margin: 0 0 1em;
+    }
+
+    main li {
+      margin-bottom: 0.4em;
+      line-height: 1.6;
+    }
+
+    main strong, main b {
+      font-weight: 600;
+    }
+
+    main table {
+      width: 100% !important;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      margin: 1em 0;
+    }
+
+    main td, main th {
+      padding: 0.5em 0.75em;
+      border: 1px solid #dce8e1;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    main th {
+      background: #edf4f0;
+      font-weight: 600;
+    }
+
+    main hr {
+      border: none;
+      border-top: 1px solid #dce8e1;
+      margin: 2em 0;
+    }
+
+    /* ── LOADING / ERROR STATES ─────────────────────────── */
+    .status {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: #777;
+    }
+
+    .status a {
+      color: #3d6b4f;
+      font-weight: 600;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      font-size: 0.8rem;
+      color: #aaa;
+      border-top: 1px solid #e8e8e8;
+    }
+
+    /* ── MOBILE ─────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      body { font-size: 17px; }
+      header { padding: 2rem 1rem 1.5rem; }
+      main { padding: 1.75rem 1rem 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <p class="eyebrow">Pennsport &middot; South Philadelphia</p>
+    <h1>Friends of Karen Donnelly Park</h1>
+  </header>
+
+  <main id="content">
+    <div class="status">Loading&hellip;</div>
+  </main>
+
+  <footer>
+    <p>Karen Donnelly Park &middot; Pennsport, Philadelphia</p>
+  </footer>
+
+  <script>
+    const DOC_ID = '1F2DwEUHKujqaVbfxQz1IONRzyBTIptHaYsNrq1S2jpA';
+    const PUB_URL = `https://docs.google.com/document/d/${DOC_ID}/pub`;
+    // corsproxy.io adds the CORS headers needed to fetch cross-origin in the browser
+    const PROXY   = `https://corsproxy.io/?${encodeURIComponent(PUB_URL)}`;
+
+    function cleanNode(root) {
+      // Strip all inline style= attributes so our CSS is in control
+      root.querySelectorAll('[style]').forEach(el => el.removeAttribute('style'));
+      // Strip fixed width/height HTML attributes from images
+      root.querySelectorAll('img').forEach(img => {
+        img.removeAttribute('width');
+        img.removeAttribute('height');
+      });
+      // Remove any Google-injected <style> blocks
+      root.querySelectorAll('style').forEach(s => s.remove());
+      // Remove any Google header / footer / script blocks
+      root.querySelectorAll('script, .kix-appview-editor-container, #header, #footer, #banners').forEach(el => el.remove());
+      return root;
+    }
+
+    async function loadContent() {
+      const main = document.getElementById('content');
+      try {
+        const res = await fetch(PROXY);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const html = await res.text();
+
+        const parser = new DOMParser();
+        const doc    = parser.parseFromString(html, 'text/html');
+
+        // Google's /pub page wraps content in #contents
+        const body = doc.querySelector('#contents') || doc.body;
+        if (!body) throw new Error('Content element not found');
+
+        cleanNode(body);
+        main.innerHTML = body.innerHTML;
+      } catch (err) {
+        console.error('Failed to load doc:', err);
+        main.innerHTML = `
+          <div class="status">
+            <p>Couldn't load the page content right now.</p>
+            <p><a href="${PUB_URL}" target="_blank">View the Google Doc directly &rarr;</a></p>
+          </div>`;
+      }
+    }
+
+    loadContent();
+  </script>
+
+</body>
+</html>
