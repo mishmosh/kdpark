@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,30 +23,7 @@
       font-size: 18px;
       line-height: 1.7;
       color: #2c2c2c;
-      background: #f5f4f0;
-    }
-
-    /* ── HEADER ─────────────────────────────────────────── */
-    header {
-      background: #3d6b4f;
-      color: #fff;
-      padding: 2.5rem 1.5rem 2rem;
-      text-align: center;
-    }
-
-    header .eyebrow {
-      font-size: 0.78rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      opacity: 0.75;
-      margin: 0 0 0.6rem;
-    }
-
-    header h1 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: clamp(1.5rem, 5vw, 2.3rem);
-      margin: 0;
-      line-height: 1.2;
+      background: #ffffff;
     }
 
     /* ── MAIN CONTENT ───────────────────────────────────── */
@@ -62,7 +40,6 @@
       max-width: 100% !important;
     }
 
-    /* Remove Google's fixed pixel widths on containers */
     main div, main p, main span, main section {
       width: auto !important;
     }
@@ -149,83 +126,86 @@
       font-weight: 600;
     }
 
-    /* ── FOOTER ─────────────────────────────────────────── */
-    footer {
-      text-align: center;
-      padding: 1.5rem 1rem;
-      font-size: 0.8rem;
-      color: #aaa;
-      border-top: 1px solid #e8e8e8;
-    }
-
     /* ── MOBILE ─────────────────────────────────────────── */
     @media (max-width: 600px) {
       body { font-size: 17px; }
-      header { padding: 2rem 1rem 1.5rem; }
       main { padding: 1.75rem 1rem 2.5rem; }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <p class="eyebrow">Pennsport &middot; South Philadelphia</p>
-    <h1>Friends of Karen Donnelly Park</h1>
-  </header>
-
   <main id="content">
     <div class="status">Loading&hellip;</div>
   </main>
 
-  <footer>
-    <p>Karen Donnelly Park &middot; Pennsport, Philadelphia</p>
-  </footer>
-
   <script>
-    const DOC_ID = '1F2DwEUHKujqaVbfxQz1IONRzyBTIptHaYsNrq1S2jpA';
+    const DOC_ID  = '1F2DwEUHKujqaVbfxQz1IONRzyBTIptHaYsNrq1S2jpA';
     const PUB_URL = `https://docs.google.com/document/d/${DOC_ID}/pub`;
-    // corsproxy.io adds the CORS headers needed to fetch cross-origin in the browser
-    const PROXY   = `https://corsproxy.io/?${encodeURIComponent(PUB_URL)}`;
+
+    // Try two different CORS proxies in sequence
+    const PROXIES = [
+      url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+      url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    ];
 
     function cleanNode(root) {
-      // Strip all inline style= attributes so our CSS is in control
       root.querySelectorAll('[style]').forEach(el => el.removeAttribute('style'));
-      // Strip fixed width/height HTML attributes from images
       root.querySelectorAll('img').forEach(img => {
         img.removeAttribute('width');
         img.removeAttribute('height');
       });
-      // Remove any Google-injected <style> blocks
-      root.querySelectorAll('style').forEach(s => s.remove());
-      // Remove any Google header / footer / script blocks
-      root.querySelectorAll('script, .kix-appview-editor-container, #header, #footer, #banners').forEach(el => el.remove());
+      root.querySelectorAll('style, script').forEach(el => el.remove());
+      root.querySelectorAll('#header, #footer, #banners').forEach(el => el.remove());
       return root;
+    }
+
+    async function fetchViaProxy(proxyFn, targetUrl) {
+      const proxyUrl = proxyFn(targetUrl);
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      // allorigins returns JSON; corsproxy returns raw HTML
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const json = await res.json();
+        return json.contents;           // allorigins wraps in { contents: "..." }
+      }
+      return res.text();
     }
 
     async function loadContent() {
       const main = document.getElementById('content');
-      try {
-        const res = await fetch(PROXY);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const html = await res.text();
+      let lastError;
 
-        const parser = new DOMParser();
-        const doc    = parser.parseFromString(html, 'text/html');
+      for (const proxyFn of PROXIES) {
+        try {
+          const html = await fetchViaProxy(proxyFn, PUB_URL);
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
 
-        // Google's /pub page wraps content in #contents
-        const body = doc.querySelector('#contents') || doc.body;
-        if (!body) throw new Error('Content element not found');
+          const body = doc.querySelector('#contents') || doc.body;
+          if (!body) throw new Error('Content element not found');
 
-        cleanNode(body);
-        main.innerHTML = body.innerHTML;
-      } catch (err) {
-        console.error('Failed to load doc:', err);
-        main.innerHTML = `
-          <div class="status">
-            <p>Couldn't load the page content right now.</p>
-            <p><a href="${PUB_URL}" target="_blank">View the Google Doc directly &rarr;</a></p>
-          </div>`;
+          cleanNode(body);
+          main.innerHTML = body.innerHTML;
+          return; // success — stop trying proxies
+        } catch (err) {
+          lastError = err;
+          console.warn('Proxy failed, trying next…', err);
+        }
       }
+
+      // All proxies failed
+      console.error('All proxies failed:', lastError);
+      main.innerHTML = `
+        <div class="status">
+          <p>Couldn't load page content right now.</p>
+          <p><a href="${PUB_URL}" target="_blank">View the Google Doc directly &rarr;</a></p>
+          <p style="font-size:0.85em;margin-top:1em;color:#aaa;">
+            If you just published the doc, wait a minute and refresh.
+          </p>
+        </div>`;
     }
 
     loadContent();
