@@ -7,130 +7,19 @@
   <title>Friends of Karen Donnelly Park</title>
   <meta name="description" content="Karen Donnelly Park is a small but special green space in the heart of Pennsport, South Philadelphia.">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-
   <style>
     *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-    }
+    /* Only override what's needed for mobile responsiveness —
+       all colors, fonts, sizes, and table styles come from Google Docs */
+    main * { max-width: 100% !important; }
+    main div, main p, main span, main section { width: auto !important; }
+    main img { display: block; width: 100% !important; height: auto !important; }
 
-    body {
-      font-family: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
-      font-size: 18px;
-      line-height: 1.7;
-      color: #2c2c2c;
-      background: #ffffff;
-    }
-
-    /* ── MAIN CONTENT ───────────────────────────────────── */
-    main {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 2.5rem 1.5rem 3rem;
-      background: #ffffff;
-      min-height: 80vh;
-    }
-
-    /* ── OVERRIDE GOOGLE DOC FIXED-WIDTH STYLES ─────────── */
-    main * {
-      max-width: 100% !important;
-    }
-
-    main div, main p, main span, main section {
-      width: auto !important;
-    }
-
-    main img {
-      display: block;
-      width: 100% !important;
-      height: auto !important;
-      border-radius: 4px;
-      margin: 1.25em 0;
-    }
-
-    /* ── TYPOGRAPHY ─────────────────────────────────────── */
-    main p {
-      margin: 0 0 1em;
-      font-size: 1rem;
-      line-height: 1.75;
-    }
-
-    main h1, main h2, main h3, main h4, main h5 {
-      font-family: 'Playfair Display', Georgia, serif;
-      color: #1f3d2b;
-      margin: 1.75em 0 0.5em;
-      line-height: 1.25;
-    }
-
-    main h1 { font-size: clamp(1.4rem, 4vw, 1.8rem); }
-    main h2 { font-size: clamp(1.2rem, 3.5vw, 1.5rem); }
-    main h3 { font-size: 1.1rem; }
-
-    main a {
-      color: #3d6b4f;
-      text-underline-offset: 3px;
-    }
-
-    main ul, main ol {
-      padding-left: 1.5em;
-      margin: 0 0 1em;
-    }
-
-    main li {
-      margin-bottom: 0.4em;
-      line-height: 1.6;
-    }
-
-    main strong, main b {
-      font-weight: 600;
-    }
-
-    main table {
-      width: 100% !important;
-      border-collapse: collapse;
-      font-size: 0.95rem;
-      margin: 1em 0;
-    }
-
-    main td, main th {
-      padding: 0.5em 0.75em;
-      border: 1px solid #dce8e1;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    main th {
-      background: #edf4f0;
-      font-weight: 600;
-    }
-
-    main hr {
-      border: none;
-      border-top: 1px solid #dce8e1;
-      margin: 2em 0;
-    }
-
-    /* ── LOADING / ERROR STATES ─────────────────────────── */
-    .status {
-      text-align: center;
-      padding: 4rem 1rem;
-      color: #777;
-    }
-
-    .status a {
-      color: #3d6b4f;
-      font-weight: 600;
-    }
-
-    /* ── MOBILE ─────────────────────────────────────────── */
-    @media (max-width: 600px) {
-      body { font-size: 17px; }
-      main { padding: 1.75rem 1rem 2.5rem; }
-    }
+    /* Loading / error states */
+    .status { text-align: center; padding: 4rem 1rem; color: #777; }
+    .status a { color: #555; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -140,23 +29,29 @@
   </main>
 
   <script>
-    const DOC_ID  = '2PACX-1vRTSAwtaZt2blbn-Qp0hTO8i8x0SvRe4TvaAA5qpyRQa0kSbs0vMC7EskBrXQwUWq9N734T0ZHuynPF';
-    const PUB_URL = `https://docs.google.com/document/d/e/${DOC_ID}/pub`;
+    const PUB_URL = 'https://docs.google.com/document/d/e/2PACX-1vRTSAwtaZt2blbn-Qp0hTO8i8x0SvRe4TvaAA5qpyRQa0kSbs0vMC7EskBrXQwUWq9N734T0ZHuynPF/pub';
 
-    // Try two different CORS proxies in sequence
     const PROXIES = [
       url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
       url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
     ];
 
-    function cleanNode(root) {
-      root.querySelectorAll('[style]').forEach(el => el.removeAttribute('style'));
-      root.querySelectorAll('img').forEach(img => {
-        img.removeAttribute('width');
-        img.removeAttribute('height');
+    function injectGoogleStyles(fetchedDoc) {
+      // Pull Google's <style> blocks out of the fetched <head> and add them to ours
+      // so colours, fonts, and table styles all come through correctly
+      fetchedDoc.querySelectorAll('head style').forEach(s => {
+        const tag = document.createElement('style');
+        tag.textContent = s.textContent;
+        document.head.appendChild(tag);
       });
-      root.querySelectorAll('style, script').forEach(el => el.remove());
+    }
+
+    function removeGoogleChrome(root) {
+      // Remove only the two Google-added header bars:
+      // "Published using Google Docs" and the doc-title / "updated every 5 min" line
       root.querySelectorAll('#header, #footer, #banners').forEach(el => el.remove());
+      // Also remove any inline <script> tags from the fetched content
+      root.querySelectorAll('script').forEach(el => el.remove());
       return root;
     }
 
@@ -164,12 +59,10 @@
       const proxyUrl = proxyFn(targetUrl);
       const res = await fetch(proxyUrl);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      // allorigins returns JSON; corsproxy returns raw HTML
       const contentType = res.headers.get('content-type') || '';
       if (contentType.includes('application/json')) {
         const json = await res.json();
-        return json.contents;           // allorigins wraps in { contents: "..." }
+        return json.contents;
       }
       return res.text();
     }
@@ -182,21 +75,22 @@
         try {
           const html = await fetchViaProxy(proxyFn, PUB_URL);
           const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
+          const fetchedDoc = parser.parseFromString(html, 'text/html');
 
-          const body = doc.querySelector('#contents') || doc.body;
+          injectGoogleStyles(fetchedDoc);
+
+          const body = fetchedDoc.querySelector('#contents') || fetchedDoc.body;
           if (!body) throw new Error('Content element not found');
 
-          cleanNode(body);
+          removeGoogleChrome(body);
           main.innerHTML = body.innerHTML;
-          return; // success — stop trying proxies
+          return;
         } catch (err) {
           lastError = err;
           console.warn('Proxy failed, trying next…', err);
         }
       }
 
-      // All proxies failed
       console.error('All proxies failed:', lastError);
       main.innerHTML = `
         <div class="status">
