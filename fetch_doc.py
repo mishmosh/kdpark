@@ -39,6 +39,13 @@ html = f"""<!DOCTYPE html>
     * {{ max-width: 100% !important; }}
     div, p, span, section {{ width: auto !important; }}
     img {{ display: block; width: 100% !important; height: auto !important; }}
+
+    /* Google Docs sets page margins as fixed pt values that don't scale on mobile.
+       On small screens, strip all left/right margins and use body padding instead. */
+    @media (max-width: 768px) {{
+      * {{ margin-left: 0 !important; margin-right: 0 !important; }}
+      body {{ padding: 0 16px !important; }}
+    }}
   </style>
 </head>
 <body>
