@@ -46,6 +46,21 @@ if google_fonts:
         f'  <link href="https://fonts.googleapis.com/css2?family={families}&display=swap" rel="stylesheet">'
     )
 
+# Extract the background colour from .doc-content's CSS classes so we can
+# match it on <body> — no hardcoding. We look up each class on the element
+# and find the first one that declares a background-color in the CSS.
+bg_color = '#ffffff'  # safe fallback
+doc_content_el = soup.select_one('.doc-content')
+if doc_content_el:
+    for cls in doc_content_el.get('class', []):
+        match = re.search(
+            rf'\.{re.escape(cls)}\s*\{{[^}}]*background-color:\s*(#[0-9a-fA-F]{{3,6}})',
+            all_css
+        )
+        if match:
+            bg_color = match.group(1)
+            break
+
 google_links  = '\n'.join(str(el) for el in soup.select('head link[rel="stylesheet"]'))
 google_styles = '\n'.join(str(s)  for s  in soup.select('head style'))
 
@@ -67,11 +82,11 @@ html = f"""<!DOCTYPE html>
     * {{ max-width: 100% !important; }}
     img {{ display: block; width: 100% !important; height: auto !important; }}
 
-    /* Match body background to the doc's lavender so nothing white shows through */
+    /* Match body background to the doc's content background so nothing shows through */
     html, body {{
       margin: 0 !important;
       padding: 0 !important;
-      background-color: #ede8f0 !important;
+      background-color: {bg_color} !important;
     }}
 
     /* Remove the outer white wrapper padding so lavender fills edge-to-edge */
@@ -80,11 +95,12 @@ html = f"""<!DOCTYPE html>
       margin: 0 !important;
     }}
 
-    /* Let the lavender content box fill the full width;
-       its own internal padding provides the comfortable spacing */
+    /* Cap width, centre, and halve the top padding (54pt → 27pt).
+       Body background matches lavender so the sides fill on wide screens. */
     .doc-content {{
-      max-width: 100% !important;
-      margin: 0 !important;
+      max-width: 900px !important;
+      margin: 0 auto !important;
+      padding-top: 27pt !important;
     }}
 
     /* On mobile, the original ~85px side padding is too tight — reduce it */
@@ -104,4 +120,4 @@ html = f"""<!DOCTYPE html>
 with open('index.html', 'w', encoding='utf-8') as f:
     f.write(html)
 
-print(f"index.html updated. Fonts: {', '.join(google_fonts) or 'none detected'}")
+print(f"index.html updated. Fonts: {', '.join(google_fonts) or 'none detected'}. Background: {bg_color}")
