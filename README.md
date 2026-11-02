@@ -8,6 +8,8 @@ The hourly GitHub Actions workflow runs `fetch_doc.py`. The script downloads the
 
 The published Google Doc is the content source of truth; `index.html` is generated output. Avoid editing the generated page directly, since the next update can overwrite those changes.
 
+The site publishes to [karendonnellypark.org](karendonnellypark.org).
+
 ## Run locally
 
 Requires Python 3 and the `requests` and `beautifulsoup4` packages.
